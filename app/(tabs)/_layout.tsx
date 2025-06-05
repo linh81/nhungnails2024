@@ -1,14 +1,14 @@
 import React from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Tabs, Redirect } from 'expo-router';
 
 import {Colors} from '@/constants/Colors';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { useAuth } from '@/context/AuthContext';
-import { View, ActivityIndicator } from 'react-native';
 
 export default function TabLayout() {
   const { user, isLoading } = useAuth();
-  
+
 // Show loading while checking auth state
 if (isLoading) {
   return (
@@ -46,7 +46,7 @@ if (!user) {
             tabBarIcon: ({ color }) => (
               <TabBarIcon name="cash-multiple" color={color} />
             ),
-            // href: !user.isAdmin ? null : undefined,
+            href: !user.userData.isAdmin ? null : undefined,
           }}
         />
         <Tabs.Screen
@@ -56,7 +56,7 @@ if (!user) {
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={"chart-line"} color={color} />
             ),
-            // href: !user.isAdmin ? null : undefined,
+            href: !user.userData.isAdmin ? null : undefined,
           }}
         />
         <Tabs.Screen
