@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { Redirect } from 'expo-router';
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
 import { useAuth } from '../context/AuthContext';
 
 export default function SignIn() {
@@ -18,7 +18,7 @@ export default function SignIn() {
   const signIn = async () => {
     setIsLoading(true);
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      await getAuth().signInWithEmailAndPassword(email, password);
       // Navigation happens automatically via auth state change
     } catch (error: any) {
       Alert.alert('Sign In Error', error.message);

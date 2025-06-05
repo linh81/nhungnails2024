@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { getAuth, FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { useUsers } from '../hooks/useTables';
 
 // Extended user type that includes both Firebase auth data and custom user data
@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged((authUser) => {
+    const unsubscribe = getAuth().onAuthStateChanged((authUser) => {
       setAuthUser(authUser);
       if (!authUser) {
         setUser(null);
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      await auth().signOut();
+      await getAuth().signOut();
     } catch (error) {
       console.error('Sign out error:', error);
     }
