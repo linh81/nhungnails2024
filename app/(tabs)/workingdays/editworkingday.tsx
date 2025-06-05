@@ -13,7 +13,7 @@ import {
 } from "@/utils/dateUtils";
 import { capitalize } from "@/utils/stringUtils";
 import { Ionicons } from "@expo/vector-icons";
-import database from '@react-native-firebase/database';
+import { getDatabase, ref, set } from '@react-native-firebase/database';
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Button, Switch, Text, View } from "react-native-ui-lib";
@@ -170,9 +170,7 @@ export default function EditWorkingDayScreen() {
     };
 
     try {
-      await database()
-        .ref(`/workingHours/${employeeId}/${selectedDate}`)
-        .set(data);
+      await set(ref(getDatabase(), `/workingHours/${employeeId}/${selectedDate}`), data);
 
       if (goBackAfterSubmit === "true") {
         navigation.goBack();

@@ -1,7 +1,7 @@
+import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
 import CalculatorButtonGrid from "./CalculatorButtonGrid";
-import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Checkbox,
@@ -105,7 +105,11 @@ export function getSum(formula: string) {
   return formula
     .split("+")
     .filter((number) => number !== "")
-    .reduce((sum, number) => sum + parseInt(number, 10), 0);
+    .reduce((sum, number) => {
+      const parsedNumber = parseInt(number, 10);
+      // Protect against NaN values
+      return sum + (Number.isFinite(parsedNumber) ? parsedNumber : 0);
+    }, 0);
 }
 
 export function getNewFormula(
@@ -146,38 +150,53 @@ const Calculator = ({
   const [isAtmVerified, setIsAtmVerified] = useState(
     typeof initialIsAtmVerified === "boolean" ? initialIsAtmVerified : null
   );
-  const [isEditMode, setIsEditMode] = useState(false);
   const [reorderedList, setReorderedList] = useState<any>();
+  const [cursorPosition, setCursorPosition] = useState(0);
 
   useEffect(() => {
-    setResult(getSum(formula).toString());
+    const calculatedSum = getSum(formula);
+    const safeResult = Number.isFinite(calculatedSum) ? calculatedSum.toString() : "0";
+    setResult(safeResult);
   }, [formula]);
 
   const reset = () => {
     // playButtonSound();
     setFormula("");
+    setCursorPosition(0);
     // setResult("0");
   };
 
   const handleBackSpace = () => {
-    if (formula === "") return;
+    if (formula === "" || cursorPosition === 0) return;
     // playButtonSound();
-    const newFormula = formula.slice(0, -1);
+    const newFormula = formula.slice(0, cursorPosition - 1) + formula.slice(cursorPosition);
     setFormula(newFormula);
+    setCursorPosition(cursorPosition - 1);
     // setResult(getSum(newFormula).toString());
   };
 
   const addToFormula = (value: string, autoPlus = false) => {
-    setFormula((formula) => `${formula}+${value}`);
-    const newFormula = getNewFormula(formula, value, autoPlus);
-    if (!newFormula) return;
-    // playButtonSound();
+    let insertValue = value;
+
+    // Handle autoPlus logic
+    if (autoPlus && cursorPosition > 0 && formula[cursorPosition - 1] !== "+") {
+      insertValue = "+" + value;
+    }
+
+    // Don't add + if it would create double plus or if at start
+    if (value === "+" && (cursorPosition === 0 || formula[cursorPosition - 1] === "+")) {
+      return;
+    }
+
+    const newFormula = formula.slice(0, cursorPosition) + insertValue + formula.slice(cursorPosition);
     setFormula(newFormula);
-    // setResult(getSum(newFormula).toString());
+    setCursorPosition(cursorPosition + insertValue.length);
   };
 
   const submitResult = () => {
-    onSubmit({ formula, result: Number(result), isAtmVerified });
+    const numericResult = Number(result);
+    const safeResult = Number.isFinite(numericResult) ? numericResult : 0;
+    onSubmit({ formula, result: safeResult, isAtmVerified });
     onClose();
   };
 
@@ -191,20 +210,14 @@ const Calculator = ({
       .filter((_value, index) => index !== indexToDelete)
       .join("+");
     setFormula(newFormula);
-  };
-
-  const handleExitEditMode = () => {
-    if (reorderedList) {
-      const newFormula = reorderedList.map((item: any) => item.value).join("+");
-      setFormula(newFormula);
-    }
-    setIsEditMode(false);
+    setCursorPosition(Math.min(cursorPosition, newFormula.length));
   };
 
   const handleInvertOrder = () => {
     if (!formula) return;
     const newFormula = formula.split("+").reverse().join("+");
     setFormula(newFormula);
+    setCursorPosition(Math.min(cursorPosition, newFormula.length));
   };
 
   const handleUpdateValue = (value: number, index: number) => {
@@ -213,6 +226,19 @@ const Calculator = ({
       .map((item, idx) => (idx === index ? value : item))
       .join("+");
     setFormula(newFormula);
+    setCursorPosition(Math.min(cursorPosition, newFormula.length));
+  };
+
+  // Input filtering for formula TextField - only numbers and + sign
+  const handleFormulaTextChange = (text: string) => {
+    // Only allow numbers and + sign
+    const filteredText = text.replace(/[^0-9+]/g, '');
+    setFormula(filteredText);
+  };
+
+  // Handle cursor position changes
+  const handleSelectionChange = (event: any) => {
+    setCursorPosition(event.nativeEvent.selection.start);
   };
 
   const renderPresetButtons = () => {
@@ -293,126 +319,65 @@ const Calculator = ({
         <Ionicons
           name="close"
           size={40}
-          onPress={!isEditMode ? handleClose : () => {}}
-          color={!isEditMode ? "red" : "#2980B9"}
+          onPress={handleClose}
+          color={"red"}
           style={{ backgroundColor: "#2980B9" }}
         />
         <View style={{ backgroundColor: "#2980B9" }}>
           <Text style={{ fontSize: 18, color: "#fff" }}>{headerTitle}</Text>
         </View>
-        <View style={{ flexDirection: "row", backgroundColor: "#2980B9" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#2980B9" }}>
           {!!formula && (
-            <>
-              <Ionicons
-                name="swap-vertical-outline"
-                size={28}
-                onPress={handleInvertOrder}
-                color="#fff"
-                style={{ backgroundColor: "#2980B9" }}
-              />
-              <Ionicons
-                name={isEditMode ? "exit" : "pencil"}
-                size={24}
-                onPress={() =>
-                  isEditMode ? handleExitEditMode() : setIsEditMode(true)
-                }
-                color="#fff"
-                style={{ backgroundColor: "#2980B9", marginLeft: 8 }}
-              />
-            </>
-          )}
-          {isAtmVerified !== null && !isEditMode && (
-            <Checkbox
-              value={isAtmVerified}
+            <Ionicons
+              name="swap-vertical-outline"
+              size={28}
+              onPress={handleInvertOrder}
               color="#fff"
-              iconColor="green"
-              onValueChange={(value) => {
-                setIsAtmVerified(value);
-              }}
-              containerStyle={{ backgroundColor: "#2980B9", marginLeft: 8 }}
+              style={{ backgroundColor: "#2980B9" }}
             />
           )}
+          <Checkbox
+            value={isAtmVerified || false}
+            color="#fff"
+            iconColor="green"
+            onValueChange={(value) => {
+              setIsAtmVerified(value);
+            }}
+            containerStyle={{ backgroundColor: "#2980B9", marginLeft: 8 }}
+          />
+
         </View>
       </View>
       <View style={styles.displayContainer}>
-        {isEditMode ? (
-          !!formula ? (
-            <SortableList
-              data={formula
-                .split("+")
-                .map((value, index) => ({ value, id: String(index) }))}
-              onOrderChange={setReorderedList}
-              renderItem={({ item, index }) => (
-                <ListItem
-                  mainComponent={
-                    <View
-                      style={
-                        {
-                          // alignItems: "center",
-                        }
-                      }
-                    >
-                      <TextField
-                        value={item.value}
-                        style={{
-                          fontSize: 18,
-                          width: 60,
-                          height: 20,
-                          borderWidth: 1,
-                          borderColor: "#dedede",
-                        }}
-                        onChangeText={(text) =>
-                          handleUpdateValue(Number(text), index)
-                        }
-                        keyboardType="number-pad"
-                      />
-                      {/* <Text style={{ fontSize: 18 }}>{item.value}</Text> */}
-                    </View>
-                  }
-                  rightComponent={
-                    <Ionicons
-                      name="close"
-                      color="red"
-                      size={32}
-                      onPress={() => handleDeleteValue(index)}
-                    />
-                  }
-                  style={{
-                    paddingHorizontal: 8,
-                    borderBottomWidth: index % 5 === 4 ? 1 : 0.2,
-                    borderBottomColor: index % 5 === 4 ? "#666" : Colors.grey50,
-                  }}
-                />
-              )}
-              flexMigration={true}
-            />
-          ) : null
-        ) : (
-          <ScrollView>
-            <Text style={styles.formula}>{formula}</Text>
-          </ScrollView>
-        )}
-        {!isEditMode && (
-          <View style={styles.resultContainer}>
-            <Text style={styles.numberOfFormulaParts}>
-              ({formula.split("+").filter((value) => !!value).length}x)
-            </Text>
-            <Text style={styles.result}>{result}</Text>
-          </View>
-        )}
-      </View>
-      {!isEditMode && (
-        <>
-          <View
-            style={[styles.middleButtons, { backgroundColor: "transparent" }]}
-          >
-            {renderPresetButtons()}
-            {renderPriorityButtons()}
-          </View>
 
-          {renderSingleDigitButtons()}
-        </>
-      )}
+        <ScrollView>
+          <TextField
+            value={formula}
+            style={styles.formula}
+            onChangeText={handleFormulaTextChange}
+            multiline
+            showSoftInputOnFocus={false}
+            onSelectionChange={handleSelectionChange}
+            selection={{ start: cursorPosition, end: cursorPosition }}
+          />
+        </ScrollView>
+        <View style={styles.resultContainer}>
+          <Text style={styles.numberOfFormulaParts}>
+            ({Math.max(0, formula.split("+").filter((value) => !!value).length)}x)
+          </Text>
+          <Text style={styles.result}>{result}</Text>
+        </View>
+
+      </View>
+      <View
+        style={[styles.middleButtons, { backgroundColor: "transparent" }]}
+      >
+        {renderPresetButtons()}
+        {renderPriorityButtons()}
+      </View>
+
+      {renderSingleDigitButtons()}
+
     </View>
   );
 };
