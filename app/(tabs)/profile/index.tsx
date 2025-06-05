@@ -1,21 +1,38 @@
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet } from "react-native";
+import { Button, Colors, View, Text } from "react-native-ui-lib";
 
-import { useAuth } from '@/context/AuthContext';
+import Constants from "expo-constants";
+import { useRouter } from "expo-router";
+
+import { useAuth } from "@/context/AuthContext";
+import ListItem from "@/components/ListItem";
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
-
-  const handleSignOut = () => {
-    signOut();
-  }
+  const router = useRouter();
+  const { signOut, user } = useAuth();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>ProfileScreen</Text>
+      <View style={{ flex: 1 }}>
+        <ListItem
+          onPress={() =>
+            router.push({
+              pathname: "/profile/employees",
+            })
+          }
+          mainComponent={<Text>Werknemers</Text>}
+          hasChevron
+        />
+      </View>
+      <View style={{ padding: 20 }}>
+        <Text>Version: {Constants.expoConfig?.version}</Text>
+        <Text>Ingelogd als: {user?.userData.name}</Text>
+      </View>
       <View style={{ paddingHorizontal: 20 }}>
         <Button
-          title="Sign Out"
-          onPress={handleSignOut}
+          label="Uitloggen"
+          backgroundColor={Colors.red30}
+          onPress={signOut}
         />
       </View>
     </View>
@@ -25,11 +42,15 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 8,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+  },
+  separator: {
+    marginVertical: 30,
+    height: 1,
+    width: "80%",
   },
 });
