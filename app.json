@@ -1,17 +1,17 @@
 {
   "expo": {
-    "name": "nhungnails2024",
+    "name": "Nhung Nails",
     "slug": "nhungnails2024",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ff0000"
     },
     "ios": {
       "supportsTablet": true,
