@@ -1,3 +1,4 @@
+import React from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 
 import TimePicker from "@/components/TimePicker";
@@ -61,7 +62,7 @@ export default function EditWorkingDayScreen() {
   };
 
   const navigateToNextEmployee = () => {
-    if (!selectedDate) return;
+    if (!selectedDate || !employees) return;
 
     const activeEmployees = employees.filter((employee: EmployeeType) => {
       return (
@@ -99,7 +100,7 @@ export default function EditWorkingDayScreen() {
   };
 
   useEffect(() => {
-    if (!employeeId || !selectedDate) return;
+    if (!employeeId || !selectedDate || !employees) return;
     setIsLoading(true);
     const employeeData = employees.find(
       (employee: any) => employee.id === employeeId
@@ -117,8 +118,8 @@ export default function EditWorkingDayScreen() {
       !!existingWorkingHoursData
         ? existingWorkingHoursData
         : employeeData.defaultWorkingDays.find(
-            (day: any) => day.name === dayName
-          )
+          (day: any) => day.name === dayName
+        )
     );
   }, [employeeId, selectedDate]);
 
@@ -170,8 +171,8 @@ export default function EditWorkingDayScreen() {
 
     try {
       await database()
-  .ref(`/workingHours/${employeeId}/${selectedDate}`)
-  .set(data);
+        .ref(`/workingHours/${employeeId}/${selectedDate}`)
+        .set(data);
 
       if (goBackAfterSubmit === "true") {
         navigation.goBack();
