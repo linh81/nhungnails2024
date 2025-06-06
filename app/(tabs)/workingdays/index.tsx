@@ -240,6 +240,7 @@ export default function WorkingDaysScreen() {
           backgroundColor: "#fff",
           width: "100%",
           marginTop: -10,
+          zIndex: 100,
         }}
       >
         {data.workingDays.map((day: any, index: number) => (

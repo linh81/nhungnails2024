@@ -16,7 +16,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.linh81.nhungnails2024",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
