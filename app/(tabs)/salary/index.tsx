@@ -99,6 +99,7 @@ export default function SalaryScreen() {
           </>
         }
         hasChevron
+        style={{ height: 50 }}
       />
     );
   };
@@ -156,6 +157,8 @@ export default function SalaryScreen() {
                 disableTouchEvent: true,
                 selected: true,
               },
+              selected: true,
+
             };
           }, {})}
         />
@@ -196,7 +199,7 @@ export default function SalaryScreen() {
           <ActivityIndicator />
         </View>
       ) : (
-        <View>
+        <View style={{ flex: 1 }}>
           <FlatList data={data.employees} renderItem={renderRow}></FlatList>
           <ListItem
             style={{ paddingLeft: 8, paddingRight: 12 }}
