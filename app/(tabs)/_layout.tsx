@@ -2,26 +2,26 @@ import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Tabs, Redirect } from 'expo-router';
 
-import {Colors} from '@/constants/Colors';
+import { Colors } from '@/constants/Colors';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { useAuth } from '@/context/AuthContext';
 
 export default function TabLayout() {
   const { user, isLoading } = useAuth();
 
-// Show loading while checking auth state
-if (isLoading) {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" />
-    </View>
-  );
-}
+  // Show loading while checking auth state
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
-// Redirect to sign-in if not authenticated
-if (!user) {
-  return <Redirect href="/sign-in" />;
-}
+  // Redirect to sign-in if not authenticated
+  if (!user) {
+    return <Redirect href="/sign-in" />;
+  }
 
   return (
     <Tabs
@@ -40,37 +40,37 @@ if (!user) {
         }}
       />
       <Tabs.Screen
-          name="salary"
-          options={{
-            title: "Salaris",
-            tabBarIcon: ({ color }) => (
-              <TabBarIcon name="cash-multiple" color={color} />
-            ),
-            href: !user.userData.isAdmin ? null : undefined,
-          }}
-        />
-        <Tabs.Screen
-          name="revenue"
-          options={{
-            title: "Omzet",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name={"chart-line"} color={color} />
-            ),
-            href: !user.userData.isAdmin ? null : undefined,
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: "Profiel",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "account" : "account-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
+        name="salary"
+        options={{
+          title: "Salaris",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="cash-multiple" color={color} />
+          ),
+          href: !user.userData?.isAdmin ? null : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="revenue"
+        options={{
+          title: "Omzet",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={"chart-line"} color={color} />
+          ),
+          href: !user.userData?.isAdmin ? null : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profiel",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "account" : "account-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

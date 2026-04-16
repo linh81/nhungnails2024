@@ -96,14 +96,14 @@ export default function RevenueScreen() {
   ]);
 
   useEffect(() => {
-    if (!user?.userData.isAdmin || !revenue) return;
+    if (!user?.userData?.isAdmin || !revenue) return;
 
     const data = getRevenueData(revenue);
     setData(data);
   }, [revenue]);
 
   useEffect(() => {
-    if (!data || !user?.userData.isAdmin) return;
+    if (!data || !user?.userData?.isAdmin) return;
 
     const visibleDays = Array.from(
       Array(getDaysInMonth(selectedDate)).keys()
@@ -216,7 +216,7 @@ export default function RevenueScreen() {
   };
 
   useEffect(() => {
-    if (!user?.userData.isAdmin || !navigation) return;
+    if (!user?.userData?.isAdmin || !navigation) return;
 
     navigation.setOptions({
       headerRight: () => {

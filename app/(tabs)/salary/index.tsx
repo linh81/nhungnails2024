@@ -53,7 +53,7 @@ export default function SalaryScreen() {
   }, [employees, workingHours, selectedWeekDays]);
 
   useEffect(() => {
-    if (!user?.userData.isAdmin) return;
+    if (!user?.userData?.isAdmin) return;
     setSelectedWeekDays(getWeekDays(selectedDate));
   }, [selectedDate]);
 
@@ -104,7 +104,7 @@ export default function SalaryScreen() {
     );
   };
 
-  if (!user?.userData.isAdmin) return null;
+  if (!user?.userData?.isAdmin) return null;
 
   return (
     <View style={styles.container}>
